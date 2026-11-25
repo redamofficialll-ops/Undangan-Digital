@@ -433,7 +433,7 @@ app.get('/api/public/invitation', (req: Request, res: Response) => {
   if (slug) {
     guest = db.prepare('SELECT * FROM guests WHERE slug = ?').get(slug) || null;
   }
-  res.json({ settings, gallery, guestbook, giftAccounts, stats, guest });
+  res.json({ settings, gallery, guestbook, giftAccounts, stats, guest, realtimeMode: 'websocket' });
 });
 
 // Public RSVP submission (creates guest if unregistered, or updates existing guest by slug)

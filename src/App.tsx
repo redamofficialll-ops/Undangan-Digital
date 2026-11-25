@@ -165,7 +165,21 @@ function AppContent() {
     });
   }, []);
 
-  useWeddingWebSocket(handleWsEvent);
+  const wsEnabled = bundle?.realtimeMode === 'websocket';
+  useWeddingWebSocket(handleWsEvent, wsEnabled);
+
+  useEffect(() => {
+    if (bundle?.realtimeMode !== 'polling') return;
+    const id = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      if (mode === 'admin') {
+        setLiveEventSignal((n) => n + 1);
+      } else {
+        void loadInvitation();
+      }
+    }, 15000);
+    return () => window.clearInterval(id);
+  }, [bundle?.realtimeMode, mode, loadInvitation]);
 
   const handleSwitchMode = useCallback((nextMode: 'invitation' | 'admin') => {
     setMode(nextMode);

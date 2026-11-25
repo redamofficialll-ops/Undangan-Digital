@@ -108,6 +108,7 @@ export interface PublicBundle {
   giftAccounts: GiftAccount[];
   stats: GuestStats;
   guest: Guest | null;
+  realtimeMode?: 'websocket' | 'polling';
 }
 
 export type WsEvent =

@@ -1,20 +1,32 @@
 import { useEffect, useRef } from 'react';
 import { WsEvent } from '../types';
 
-export function useWeddingWebSocket(onEvent: (event: WsEvent) => void) {
+export function useWeddingWebSocket(
+  onEvent: (event: WsEvent) => void,
+  enabled = true
+) {
   const onEventRef = useRef(onEvent);
   onEventRef.current = onEvent;
 
   useEffect(() => {
+    if (!enabled) return;
+
     let ws: WebSocket | null = null;
     let reconnectTimer: number | null = null;
     let unmounted = false;
+    let openedOnce = false;
+    let unopenedFailures = 0;
 
     const connect = () => {
       if (unmounted) return;
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const url = `${protocol}//${window.location.host}/ws`;
       ws = new WebSocket(url);
+
+      ws.onopen = () => {
+        openedOnce = true;
+        unopenedFailures = 0;
+      };
 
       ws.onmessage = (msg) => {
         try {
@@ -26,9 +38,14 @@ export function useWeddingWebSocket(onEvent: (event: WsEvent) => void) {
       };
 
       ws.onclose = () => {
-        if (!unmounted) {
-          reconnectTimer = window.setTimeout(connect, 2500);
+        if (unmounted) return;
+        if (!openedOnce) {
+          unopenedFailures += 1;
+          if (unopenedFailures >= 2) {
+            return;
+          }
         }
+        reconnectTimer = window.setTimeout(connect, 2500);
       };
 
       ws.onerror = () => {
@@ -44,6 +61,7 @@ export function useWeddingWebSocket(onEvent: (event: WsEvent) => void) {
       unmounted = true;
       if (reconnectTimer !== null) window.clearTimeout(reconnectTimer);
       if (ws) {
+        ws.onopen = null;
         ws.onclose = null;
         ws.onerror = null;
         ws.onmessage = null;
@@ -57,5 +75,5 @@ export function useWeddingWebSocket(onEvent: (event: WsEvent) => void) {
         }
       }
     };
-  }, []);
+  }, [enabled]);
 }
