@@ -1,0 +1,6 @@
+{
+  "name": "Niskala — Undangan Pernikahan Digital",
+  "description": "Undangan pernikahan digital elegan dengan pengelolaan nama tamu unik, statistik RSVP, galeri & peta kustom, musik latar, buku tamu real-time, ekspor Excel/PDF, database SQL lokal, dan sinkronisasi Google Sheets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
